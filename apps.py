@@ -2,60 +2,71 @@
 # following along from class exercise to build my homework
 from flask import Flask, jsonify
 
+import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, func
+
+import numpy as np
+
+######### Database Setup #########
+engine = create_engine("sqlite:///hawaii.sqlite")
+
+# reflect an existing database into a new model
+Base = automap_base()
+
+# reflect the tables
+Base.prepare(engine, reflect=True)
+
+# Save reference to the table
+Measurement = Base.classes.measurement
+Station = Base.classes.station
+
+# Session (link) from Python to the database
+session = Session(engine)
+
+######### Flask Setup #########
 # create an app, be sure to pass __name__ (from class exercise)
 app = Flask(__name__)
 
-hello_dict = {"Hello": "world!"}
 
+######### Flask Routes #########
 # define what to do when a user hits the index route  
-@app.route("/")
-def home():
-    print ("hello world")
-    return ("Welcome")
-
-# define what to do when a user hits the "name of the page" similar to the home ones 
-# @app.route("/name of the page")
-# def (name of the page)():
-
-@app.route("/jsonified")
-def jsonified():
-    return jsonify(hello_dict)
-
-
-#####################
-# Create your dictionary 
-# justice_league_members = [{ a: 1, b: 2}, {c:3, d:4}]
-#################################################
-# Flask Setup
-#################################################
-# @TODO: Initialize your Flask app here
-# YOUR CODE GOES HERE
-
-@app.route("/api/v1.0/justice-league")
-def justice_league():
-    """Return the justice league data as json"""
-
-    return jsonify(justice_league_members)
-
-
+# List all routes that are available 
 @app.route("/")
 def welcome():
+    """List all available api routes."""
     return (
-        f"Welcome to the Justice League API!<br/>"
         f"Available Routes:<br/>"
-        f"/api/v1.0/justice-league"
-    )
+        f"/api/v1.0/stations<br/>"
+        f"/api/v1.0/precipitation<br/>"
+        f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/start<br/>"
+        f"/api/v1.0/start/end"
+        )
 
-#################################################
-# Flask Routes
-#################################################
+# define what to do when a user hits the "name of the page" similar to the home ones 
+# route 1 is the list of stations page 
+# @app.route("/name of the page")
+# def (name of the page)():
+# https://docs.scipy.org/doc/numpy/reference/generated/numpy.ravel.html
+# when np.ravel is use the list function need to be implemented - otherwise it throw an error
+@app.route("/api/v1.0/stations")
+def stations():
+    """read our data for list of stations"""
+    result = session.query(Station.station).all()
+    stations = list(np.ravel(result))
+    return jsonify(stations)
 
-# @TODO: Complete the routes for your app here
-# YOUR CODE GOES HERE
+# route 2 is query precipitation 
+# @app.route("/name of the page")
+# def (name of the page)():
+@app.route("/api/v1.0/precipitation")
+def precipitation():
 
-if __name__ == "__main__":
-    # @TODO: Create your app.run statement here
-    # YOUR CODE GOES HERE
+    return jsonify()
+
+
 
 
 
